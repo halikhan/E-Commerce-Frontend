@@ -5,7 +5,24 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { ShoppingCart, Search, Heart, Dumbbell, Trophy, Target, Bike, Waves, Mountain } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Slider } from "@/components/ui/slider"
+import {
+  ShoppingCart,
+  Search,
+  Heart,
+  Dumbbell,
+  Trophy,
+  Target,
+  Bike,
+  Waves,
+  Mountain,
+  Filter,
+  Grid,
+  List,
+  Star,
+} from "lucide-react"
 import Link from "next/link"
 
 const subcategories = [
@@ -115,6 +132,14 @@ export default function SportsPage() {
   const [sortBy, setSortBy] = useState("featured")
   const [showFilters, setShowFilters] = useState(false)
 
+  const toggleBrand = (brand: string) => {
+    setSelectedBrands((prev) => (prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]))
+  }
+
+  const toggleSport = (sport: string) => {
+    setSelectedSports((prev) => (prev.includes(sport) ? prev.filter((s) => s !== sport) : [...prev, sport]))
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -151,7 +176,9 @@ export default function SportsPage() {
       <div className="border-b bg-gray-50">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center gap-2 text-sm">
-            <Link href="/" className="text-gray-500 hover:text-gray-700">Home</Link>
+            <Link href="/" className="text-gray-500 hover:text-gray-700">
+              Home
+            </Link>
             <span className="text-gray-400">/</span>
             <span className="font-medium">Sports</span>
           </div>
@@ -199,4 +226,188 @@ export default function SportsPage() {
               </Link>
             ))}
           </div>
-        </div>\
+        </div>
+      </section>
+
+      {/* Products Section */}
+      <section className="py-12 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Filters Sidebar */}
+            <div className={`lg:w-64 ${showFilters ? "block" : "hidden lg:block"}`}>
+              <div className="bg-white rounded-lg p-6 sticky top-24">
+                <h3 className="font-semibold mb-4">Filters</h3>
+
+                {/* Price Range */}
+                <div className="mb-6">
+                  <h4 className="font-medium mb-3">Price Range</h4>
+                  <Slider value={priceRange} onValueChange={setPriceRange} max={500} step={10} className="mb-2" />
+                  <div className="flex justify-between text-sm text-gray-500">
+                    <span>${priceRange[0]}</span>
+                    <span>${priceRange[1]}</span>
+                  </div>
+                </div>
+
+                {/* Brands */}
+                <div className="mb-6">
+                  <h4 className="font-medium mb-3">Brands</h4>
+                  <div className="space-y-2">
+                    {brands.map((brand) => (
+                      <div key={brand} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={brand}
+                          checked={selectedBrands.includes(brand)}
+                          onCheckedChange={() => toggleBrand(brand)}
+                        />
+                        <label htmlFor={brand} className="text-sm cursor-pointer">
+                          {brand}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Sports */}
+                <div className="mb-6">
+                  <h4 className="font-medium mb-3">Sports</h4>
+                  <div className="space-y-2">
+                    {sports.map((sport) => (
+                      <div key={sport} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={sport}
+                          checked={selectedSports.includes(sport)}
+                          onCheckedChange={() => toggleSport(sport)}
+                        />
+                        <label htmlFor={sport} className="text-sm cursor-pointer">
+                          {sport}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Products Grid */}
+            <div className="flex-1">
+              {/* Toolbar */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="lg:hidden"
+                  >
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filters
+                  </Button>
+                  <span className="text-sm text-gray-500">Showing {products.length} products</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="featured">Featured</SelectItem>
+                      <SelectItem value="price-low">Price: Low to High</SelectItem>
+                      <SelectItem value="price-high">Price: High to Low</SelectItem>
+                      <SelectItem value="rating">Highest Rated</SelectItem>
+                      <SelectItem value="newest">Newest</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="flex border rounded-md">
+                    <Button
+                      variant={viewMode === "grid" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setViewMode("grid")}
+                    >
+                      <Grid className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant={viewMode === "list" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setViewMode("list")}
+                    >
+                      <List className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Products */}
+              <div
+                className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" : "space-y-4"}
+              >
+                {products.map((product) => (
+                  <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
+                    <CardContent className={viewMode === "grid" ? "p-0" : "p-4 flex gap-4"}>
+                      <div className={viewMode === "grid" ? "" : "w-32 h-32 flex-shrink-0"}>
+                        <div className="relative">
+                          <img
+                            src={product.image || "/placeholder.svg"}
+                            alt={product.name}
+                            className={`${viewMode === "grid" ? "w-full h-48" : "w-full h-full"} object-cover rounded-t-lg`}
+                          />
+                          {product.badge && (
+                            <Badge className="absolute top-2 left-2 bg-orange-500">{product.badge}</Badge>
+                          )}
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                          >
+                            <Heart className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className={viewMode === "grid" ? "p-4" : "flex-1"}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline" className="text-xs">
+                            {product.category}
+                          </Badge>
+                          <span className="text-xs text-gray-500">{product.brand}</span>
+                        </div>
+                        <h3 className="font-semibold mb-2 group-hover:text-orange-600 transition-colors">
+                          {product.name}
+                        </h3>
+                        <div className="flex items-center gap-1 mb-2">
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-3 w-3 ${
+                                  i < Math.floor(product.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs text-gray-500">
+                            {product.rating} ({product.reviews})
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-lg">${product.price}</span>
+                            {product.originalPrice && (
+                              <span className="text-sm text-gray-500 line-through">${product.originalPrice}</span>
+                            )}
+                          </div>
+                          <Button size="sm" disabled={!product.inStock}>
+                            <ShoppingCart className="h-4 w-4 mr-1" />
+                            {product.inStock ? "Add to Cart" : "Out of Stock"}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
